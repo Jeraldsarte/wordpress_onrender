@@ -1,23 +1,18 @@
-# Start with an official PHP + Apache image
-FROM php:8.2-apache
+# Use the official WordPress image
+FROM wordpress:php8.2-apache
 
-# Install needed PHP extensions
-RUN docker-php-ext-install mysqli
+# Set working directory
+WORKDIR /var/www/html
 
-# Download and extract WordPress
-RUN apt-get update && apt-get install -y wget unzip \
-    && wget https://wordpress.org/latest.zip \
-    && unzip latest.zip -d /var/www/html/ \
-    && rm latest.zip
+# Copy your wp-config.php into the container
+COPY wp-config.php /var/www/html/wp-config.php
 
-# Copy your wp-config.php file (overwriting the default sample)
-COPY wp-config.php /var/www/html/wordpress/wp-config.php
+# Set correct permissions for WordPress
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html/wordpress
-
-# Set the working directory
-WORKDIR /var/www/html/wordpress
-
+# Expose port 80
 EXPOSE 80
+
+# Start Apache
 CMD ["apache2-foreground"]
